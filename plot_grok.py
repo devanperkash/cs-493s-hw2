@@ -2,7 +2,7 @@ import json
 import matplotlib.pyplot as plt
 
 # Replace this with your actual file path
-log_path = "logs/grok_div_p97_1layer_seed1_20250609_232253.json"
+log_path = "logs/grok_div_p97_1layer_seed1_20250609_234029.json"
 
 with open(log_path, "r") as f:
     metrics = json.load(f)

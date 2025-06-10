@@ -12,12 +12,12 @@ from datetime import datetime
 
 # Argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--epochs', type=int, default=10000)
+parser.add_argument('--epochs', type=int, default=20000)
 parser.add_argument('--op', type=str, default='/', choices=['+', '-', '/'])
 parser.add_argument('--p', type=int, default=97, choices=[97, 113])
 parser.add_argument('--layers', type=int, default=1, choices=[1, 2])
 parser.add_argument('--seed', type=int, default=1)
-parser.add_argument('--train_frac', type=float, default=0.005)
+parser.add_argument('--train_frac', type=float, default=0.001)
 args = parser.parse_args()
 
 # Create checkpoint directory
@@ -84,8 +84,8 @@ if __name__ == "__main__":
     model = GPT(model_config).to(device)
     optimizer = AdamW(
         model.parameters(),
-        lr=1e-3,
-        weight_decay=1e-2
+        lr=2e-3,
+        weight_decay=0.1
     )
 
     # Save metrics for logging
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1} finished: avg train loss = {avg_loss:.4f}")
 
-        if (epoch + 1) % 100 == 0:
+        if (epoch + 1) % 5000 == 0:
             ckpt_path = os.path.join(ckpt_dir, f"epoch{epoch+1}.pt")
             torch.save(model.state_dict(), ckpt_path)
             print(f"[Checkpoint] Saved model at epoch {epoch+1} to {ckpt_path}")
