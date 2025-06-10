@@ -16,7 +16,8 @@ for op in ops:
                     "--op", op,
                     "--p", str(p),
                     "--layers", str(layer),
-                    "--seed", str(seed)
+                    "--seed", str(seed),
+                    "--steps", "100000"
                 ]
                 try:
                     subprocess.run(cmd, check=True)

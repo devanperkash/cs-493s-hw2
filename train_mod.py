@@ -15,6 +15,7 @@ parser.add_argument('--op', type=str, required=True, choices=['+', '-', '/'])
 parser.add_argument('--p', type=int, required=True, choices=[97, 113])
 parser.add_argument('--layers', type=int, required=True, choices=[1, 2])
 parser.add_argument('--seed', type=int, required=True)
+parser.add_argument('--steps', type=int, default=100000)
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -85,47 +86,45 @@ if __name__ == "__main__":
     }
 
     # Training loop
-    epochs = args.epochs
-    for epoch in range(epochs):
-        model.train()
-        total_loss = 0.0
-        for step, (x, y) in enumerate(train_loader):
-            x, y = x.to(device), y.to(device)
-            logits = model(x)
+    train_iter = iter(train_loader)
+    for step in range(1, args.steps + 1):
+        try:
+            x, y = next(train_iter)
+        except StopIteration:
+            train_iter = iter(train_loader)
+            x, y = next(train_iter)
 
-            logits = logits.view(-1, vocab_size)
-            y = y.view(-1)
-            loss = F.cross_entropy(logits, y)
+        x, y = x.to(device), y.to(device)
+        logits = model(x)
+        logits = logits.view(-1, vocab_size)
+        y = y.view(-1)
+        loss = F.cross_entropy(logits, y)
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            total_loss += loss.item()
+        if step % 100 == 0:
+            print(f"Step {step}: loss = {loss.item():.4f}")
 
-            if step % 100 == 0:
-                print(f"Epoch {epoch+1} Step {step}: loss = {loss.item():.4f}")
-
-        avg_loss = total_loss / len(train_loader)
-        print(f"Epoch {epoch+1} finished: avg train loss = {avg_loss:.4f}")
-
-        # Validation accuracy
-        model.eval()
-        correct, total = 0, 0
-        with torch.no_grad():
-            for x, y in val_loader:
-                x, y = x.to(device), y.to(device)
-                logits = model(x)
-                preds = logits.argmax(dim=-1)
-                correct += (preds == y).sum().item()
-                total += y.numel()
-        acc = correct / total
-        print(f"           Validation accuracy = {acc:.4f}")
-
-        metrics["epoch"].append(epoch + 1)
-        metrics["train_loss"].append(avg_loss)
-        metrics["val_accuracy"].append(acc)
-
+        # Optional: evaluate every N steps
+        if step % 1000 == 0 or step == args.steps:
+            model.eval()
+            correct, total = 0, 0
+            with torch.no_grad():
+                for x_val, y_val in val_loader:
+                    x_val, y_val = x_val.to(device), y_val.to(device)
+                    logits = model(x_val)
+                    preds = logits.argmax(dim=-1)
+                    correct += (preds == y_val).sum().item()
+                    total += y_val.numel()
+            acc = correct / total
+            print(f"Validation accuracy @ step {step} = {acc:.4f}")
+            metrics["epoch"].append(step)  # now recording by step
+            metrics["train_loss"].append(loss.item())
+            metrics["val_accuracy"].append(acc)
+            model.train()
+    
     # Save model
     os.makedirs("checkpoints", exist_ok=True)
     save_name = f"gpt_{args.op}_p{args.p}_{args.layers}layer_seed{args.seed}.pt"
