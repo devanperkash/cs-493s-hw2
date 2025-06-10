@@ -2,7 +2,9 @@ import torch
 from torch.utils.data import Dataset
 
 def create_vocab(text):
-    return sorted(set(text))
+    # Add <PAD> token at index 0, then the sorted set of characters
+    vocab = ['<PAD>'] + sorted(set(text))
+    return vocab
 
 def encode(text, vocab):
     indices = []
@@ -10,11 +12,16 @@ def encode(text, vocab):
         if char in vocab:
             index = vocab.index(char)
             indices.append(index)
+        else:
+            # If char not in vocab, use <PAD> index (0)
+            indices.append(0)
     return indices
 
 def decode(indices, vocab):
     chars = []
     for i in indices:
+        if i == 0:
+            continue  # skip <PAD> tokens in decoding
         chars.append(vocab[i])
     return ''.join(chars)
 
@@ -45,7 +52,7 @@ class ModData(Dataset):
             y = y[:self.block_size]
         else:
             pad_len = self.block_size - len(x)
-            x += [0] * pad_len
+            x += [0] * pad_len  # 0 is always <PAD>
             y += [0] * pad_len
 
         return (
