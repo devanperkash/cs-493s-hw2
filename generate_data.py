@@ -45,6 +45,7 @@ def generate_and_save_all_data():
     os.makedirs(output_dir, exist_ok=True)
     moduli = [97, 113]
     operations = ['+', '-', '/']
+    op_symbol_map = {'+': 'plus', '-': 'minus', '/': 'div'}
 
     for p in moduli:
         for op in operations:
@@ -52,9 +53,11 @@ def generate_and_save_all_data():
             data = generate_dataset(p, op)
             train, val, test = split_dataset(data)
 
-            save_split(train, f"{output_dir}/{op}_p{p}_train.txt")
-            save_split(val,   f"{output_dir}/{op}_p{p}_val.txt")
-            save_split(test,  f"{output_dir}/{op}_p{p}_test.txt")
+            op_str = op_symbol_map[op]  # Convert to filename-safe string
+
+            save_split(train, f"{output_dir}/{op_str}_p{p}_train.txt")
+            save_split(val,   f"{output_dir}/{op_str}_p{p}_val.txt")
+            save_split(test,  f"{output_dir}/{op_str}_p{p}_test.txt")
 
             print(f"  ➤ {len(train)} train, {len(val)} val, {len(test)} test samples")
 
