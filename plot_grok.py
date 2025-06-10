@@ -2,7 +2,7 @@ import json
 import matplotlib.pyplot as plt
 
 # Replace this with your actual file path
-log_path = "logs/grok_div_p97_1layer_seed1.json"
+log_path = "logs/grok_div_p97_1layer_seed1_20250609_232253.json"
 
 with open(log_path, "r") as f:
     metrics = json.load(f)
@@ -16,7 +16,7 @@ plt.figure()
 plt.plot(epochs, train_loss, label="Train Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
-plt.title("Train Loss (div p=97, 1 layer)")
+plt.title("Train Loss")
 plt.grid(True)
 plt.legend()
 plt.show()
@@ -26,7 +26,7 @@ plt.figure()
 plt.plot(epochs, val_acc, label="Validation Accuracy")
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
-plt.title("Validation Accuracy (div p=97, 1 layer)")
+plt.title("Validation Accuracy")
 plt.grid(True)
 plt.legend()
 plt.show()

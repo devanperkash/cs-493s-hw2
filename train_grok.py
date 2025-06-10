@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from model import GPT, GPTConfig
 from utils import create_vocab, encode, decode, ModData
 from torch.utils.data import DataLoader
+from torch.optim import AdamW
 import os
 import random
 import argparse
@@ -11,12 +12,12 @@ from datetime import datetime
 
 # Argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--epochs', type=int, default=2000)
+parser.add_argument('--epochs', type=int, default=10000)
 parser.add_argument('--op', type=str, default='/', choices=['+', '-', '/'])
 parser.add_argument('--p', type=int, default=97, choices=[97, 113])
 parser.add_argument('--layers', type=int, default=1, choices=[1, 2])
 parser.add_argument('--seed', type=int, default=1)
-parser.add_argument('--train_frac', type=float, default=0.3)
+parser.add_argument('--train_frac', type=float, default=0.005)
 args = parser.parse_args()
 
 # Create checkpoint directory
@@ -48,7 +49,6 @@ if __name__ == "__main__":
     data_path = f"data/{args.op}_p{args.p}_train.txt"
     val_path = f"data/{args.op}_p{args.p}_val.txt"
     block_size = 16
-    batch_size = 32
     vocab = None
 
     # Load and build vocab
@@ -65,16 +65,16 @@ if __name__ == "__main__":
     train_dataset, _ = torch.utils.data.random_split(full_train_dataset, [train_size, len(full_train_dataset) - train_size], generator=generator)
 
     val_dataset = ModData(val_path, block_size, vocab=vocab)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size)
+    train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=len(val_dataset), shuffle=False)
 
     # Model configuration
     model_config = GPTConfig(
         block_size=block_size,
         vocab_size=vocab_size,
         n_layer=args.layers,
-        n_head=2,
-        n_embd=64,
+        n_head=1,
+        n_embd=16,
         dropout=0.0,
         bias=True
     )
@@ -82,11 +82,10 @@ if __name__ == "__main__":
 
     # Initialize the model
     model = GPT(model_config).to(device)
-    optimizer = torch.optim.Adam(
+    optimizer = AdamW(
         model.parameters(),
         lr=1e-3,
-        betas=(0.9, 0.95),
-        weight_decay=1.0
+        weight_decay=1e-2
     )
 
     # Save metrics for logging
