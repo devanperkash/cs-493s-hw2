@@ -18,6 +18,10 @@ parser.add_argument('--seed', type=int, required=True)
 parser.add_argument('--steps', type=int, default=100000)
 args = parser.parse_args()
 
+# Map operator to filename-safe name
+op_symbol_map = {'+': 'plus', '-': 'minus', '/': 'div'}
+op_str = op_symbol_map[args.op]
+
 if __name__ == "__main__":
     # Set seed for reproducibility
     seed = args.seed
@@ -38,8 +42,8 @@ if __name__ == "__main__":
         print("Using CPU.")
 
     # Parameters
-    data_path = f"data/{args.op}_p{args.p}_train.txt"
-    val_path = f"data/{args.op}_p{args.p}_val.txt"
+    data_path = f"data/{op_str}_p{args.p}_train.txt"
+    val_path = f"data/{op_str}_p{args.p}_val.txt"
     block_size = 16
     batch_size = 32
     vocab = None
