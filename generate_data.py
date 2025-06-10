@@ -8,10 +8,14 @@ def compute_mod_result(a, b, p, operation):
         return (a - b) % p
     elif operation == "/":
         if b == 0:
-            return None # Skip division by zero
-        return (int(a / b) % p)
+            return None  # Cannot divide by zero
+        try:
+            b_inv = pow(b, -1, p)  # Modular inverse of b mod p
+            return (a * b_inv) % p
+        except ValueError:
+            return None  # No modular inverse exists (shouldn't happen if p is prime)
     else:
-        return None # Invalid operation
+        return None
     
 def generate_dataset(p, operation):
     examples = []
