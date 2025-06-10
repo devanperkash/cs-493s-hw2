@@ -23,7 +23,7 @@ def generate_dataset(p, operation):
         for b in range(p+1):
             c = compute_mod_result(a, b, p, operation)
             if c is not None:
-                example = f"{a}{operation}{b}={c}"
+                example = f"{a} {operation} {b} = {c}"
                 examples.append(example)
     return examples
 
