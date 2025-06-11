@@ -36,11 +36,11 @@ for op in ops:
 
             # Aggregate
             train_losses = np.array([m["train_loss"] for m in metrics])
-            val_accuracies = np.array([m["val_accuracy"] for m in metrics])
+            test_accuracies = np.array([m["val_accuracy"] for m in metrics])
             steps = [1000 * (i + 1) for i in range(train_losses.shape[1])]
 
             avg_train_loss = train_losses.mean(axis=0)
-            avg_val_acc = val_accuracies.mean(axis=0)
+            avg_test_acc = test_accuracies.mean(axis=0)
 
             # Plot Training Loss
             plt.figure()
@@ -54,14 +54,14 @@ for op in ops:
             plt.savefig(f"{out_dir}/train_{op_str}_p{p}_{layers}layer.png")
             plt.close()
 
-            # Plot Validation Accuracy
+            # Plot Test Accuracy
             plt.figure()
-            plt.plot(steps, avg_val_acc, label="Val Accuracy")
+            plt.plot(steps, avg_test_acc, label="Test Accuracy")
             plt.xlabel("Training Steps")
             plt.ylabel("Accuracy")
-            plt.title(f"Validation Accuracy: {op} mod {p}, {layers} layer(s)")
+            plt.title(f"Test Accuracy: {op} mod {p}, {layers} layer(s)")
             plt.grid(True)
             plt.legend()
             plt.tight_layout()
-            plt.savefig(f"{out_dir}/val_{op_str}_p{p}_{layers}layer.png")
+            plt.savefig(f"{out_dir}/test_{op_str}_p{p}_{layers}layer.png")
             plt.close()
