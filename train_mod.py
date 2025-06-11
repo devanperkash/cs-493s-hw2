@@ -131,13 +131,13 @@ if __name__ == "__main__":
     
     # Save model
     os.makedirs("checkpoints", exist_ok=True)
-    save_name = f"gpt_{args.op}_p{args.p}_{args.layers}layer_seed{args.seed}.pt"
+    save_name = f"gpt_{op_str}_p{args.p}_{args.layers}layer_seed{args.seed}.pt"
     save_path = os.path.join("checkpoints", save_name)
     torch.save(model.state_dict(), save_path)
     print(f"Model saved to {save_path}")
 
     # Save metrics
-    metrics_path = f"logs/log_{args.op}_p{args.p}_{args.layers}layer_seed{args.seed}.json"
+    metrics_path = f"logs/log_{op_str}_p{args.p}_{args.layers}layer_seed{args.seed}.json"
     os.makedirs("logs", exist_ok=True)
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
